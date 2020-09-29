@@ -3,6 +3,7 @@ from os import environ
 from telegram.ext import Updater, CommandHandler
 
 from TelegramBot.handler import HandlerDecorator
+from TelegramBot.utils.logger import CustomLogger
 
 
 class TelegramBot:
@@ -14,8 +15,11 @@ class TelegramBot:
 
         self._validate_environ()
 
+        self._logger = CustomLogger()
+
         self._updater = Updater(token=environ['TELEGRAM_TOKEN'], use_context=True)
         self._dispatcher = self._updater.dispatcher
+        self._logger.info('Dispatcher initiated')
 
         self.handle = HandlerDecorator(self._dispatcher)
 
@@ -35,7 +39,12 @@ class TelegramBot:
                 )
 
         self._updater.start_polling()
-        self._updater.idle()
+        self._logger.info('Bot is ready and listening')
+
+        try:
+            self._updater.idle()
+        finally:
+            self._logger.info('Bot is offline')
 
     @property
     def all_handlers(self):

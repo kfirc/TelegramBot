@@ -1,6 +1,8 @@
-from functools import partial
+from functools import partial, wraps
 
 from telegram.ext import CommandHandler, MessageHandler, InlineQueryHandler
+
+from TelegramBot.utils.logger import CustomLogger
 
 
 class HandlerDecorator:
@@ -12,6 +14,7 @@ class HandlerDecorator:
 
     def __init__(self, dispatcher):
         self._dispatcher = dispatcher
+        self._logger = CustomLogger()
 
     def _handler_decorator(self, handler_class, *args, **kwargs):
         def handler_decorator(handler_func):
@@ -23,11 +26,16 @@ class HandlerDecorator:
         return partial(self._handler_decorator, self.HANDLER_CLASSES[item])
 
     def add(self, handler_func, handler_class, *args, **kwargs):
-        kwargs['callback'] = handler_func
         group = kwargs.pop('group', 0)
         add_first = kwargs.pop('add_first', False)
         if issubclass(handler_class, CommandHandler) and not args and not kwargs.get('command'):
             kwargs['command'] = handler_func.__name__
+
+        @wraps(handler_func)
+        def logging_wrapper(update, context):
+            self._logger.info(f"Request handled by '{handler_func.__name__}' ({update.effective_chat.id})")
+            return handler_func(update, context)
+        kwargs['callback'] = logging_wrapper
 
         handler = handler_class(*args, **kwargs)
         self._dispatcher.add_handler(handler, group=group)

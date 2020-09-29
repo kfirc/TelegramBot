@@ -11,6 +11,7 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
+        'sendgrid==6.1.0',
         'python-telegram-bot==12.8',
     ],
 )
