@@ -11,5 +11,6 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
+        'python-telegram-bot==12.8',
     ],
 )
