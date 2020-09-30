@@ -2,8 +2,6 @@ from functools import partial, wraps
 
 from telegram.ext import CommandHandler, MessageHandler, InlineQueryHandler
 
-from TelegramBot.utils.logger import CustomLogger
-
 
 class HandlerDecorator:
     HANDLER_CLASSES = {
@@ -12,9 +10,9 @@ class HandlerDecorator:
         'inline_query': InlineQueryHandler,
     }
 
-    def __init__(self, dispatcher):
+    def __init__(self, dispatcher, logger):
         self._dispatcher = dispatcher
-        self._logger = CustomLogger()
+        self._logger = logger
 
     def _handler_decorator(self, handler_class, *args, **kwargs):
         def handler_decorator(handler_func):

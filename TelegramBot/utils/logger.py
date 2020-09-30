@@ -1,11 +1,17 @@
 import logging
-from os import environ
 
-from TelegramBot.utils import classproperty, Singleton
+from TelegramBot.utils import Singleton
 
 
 class CustomLogger(metaclass=Singleton):
-    def __init__(self):
+    def __init__(
+            self,
+            logger_path=None,
+            logger_stream=True,
+    ):
+        self.logger_path = logger_path
+        self.logger_stream = logger_stream
+
         # Create a custom logger
         self._logger = logging.getLogger(__name__)
         self._logger.setLevel(self.config['level'])
@@ -14,20 +20,18 @@ class CustomLogger(metaclass=Singleton):
 
     @property
     def config(self):
-        logging_config = dict(
+        return dict(
+            filename=self.logger_path,
             level=logging.INFO,
             format='%(asctime)s :: %(levelname)s :: %(message)s',
         )
-        if logger_path := environ.get('LOGGER_PATH'):
-            logging_config['filename'] = logger_path
-        return logging_config
 
     @property
     def formatter(self):
         return logging.Formatter(self.config['format'])
 
     def init_env(self):
-        if self.support_stream:
+        if self.logger_stream:
             c_handler = logging.StreamHandler()
             c_handler.setLevel(self.config['level'])
             c_handler.setFormatter(self.formatter)
@@ -39,13 +43,9 @@ class CustomLogger(metaclass=Singleton):
             f_handler.setFormatter(self.formatter)
             self._logger.addHandler(f_handler)
 
-    @classproperty
-    def support_files(cls):
-        return bool(environ.get('LOGGER_PATH'))
-
-    @classproperty
-    def support_stream(cls):
-        return environ.get('LOGGER_STREAM', 'true').lower() != 'false'
+    @property
+    def support_files(self):
+        return bool(self.config['filename'])
 
     def __getattr__(self, item):
         return getattr(self._logger, item)

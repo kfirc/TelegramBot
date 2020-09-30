@@ -1,5 +1,3 @@
-from os import environ
-
 from telegram.ext import Updater, CommandHandler
 
 from TelegramBot.handler import HandlerDecorator
@@ -9,24 +7,24 @@ from TelegramBot.utils.logger import CustomLogger
 class TelegramBot:
     def __init__(
             self,
+            token: str,
             help_description: str = '',
+            logger_path=None,
+            logger_stream=True,
     ):
         self.help_description = help_description
-
-        self._validate_environ()
-
-        self._logger = CustomLogger()
-
-        self._updater = Updater(token=environ['TELEGRAM_TOKEN'], use_context=True)
+        self._logger = CustomLogger(
+            logger_path=logger_path,
+            logger_stream=logger_stream,
+        )
+        self._token = token
+        self._updater = Updater(token=self._token, use_context=True)
         self._dispatcher = self._updater.dispatcher
         self._logger.info('Dispatcher initiated')
-
-        self.handle = HandlerDecorator(self._dispatcher)
-
-    def _validate_environ(self):
-        for key in ('TELEGRAM_TOKEN',):
-            if key not in environ:
-                raise NotImplementedError(f"'{key}' environment variable must be specified")
+        self.handle = HandlerDecorator(
+            dispatcher=self._dispatcher,
+            logger=self._logger,
+        )
 
     def start_polling(self):
         for command in ('start', 'help'):
