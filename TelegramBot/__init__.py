@@ -1,7 +1,7 @@
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
-from TelegramBot.handler import HandlerDecorator
 from TelegramBot.utils.logger import CustomLogger
+from TelegramBot.handler.handler_decorator import HandlerDecorator
 
 
 class TelegramBot:
