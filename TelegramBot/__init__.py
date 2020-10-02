@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 from TelegramBot.handler import HandlerDecorator
 from TelegramBot.utils.logger import CustomLogger
@@ -27,12 +27,21 @@ class TelegramBot:
         )
 
     def start_polling(self):
-        for command in ('start', 'help'):
-            if command not in self.all_commands:
+        for command_name in ('start', 'help'):
+            if command_name not in self.all_commands:
+                # Adding handler on command request
                 self.handle.add_first(
                     handler_class=CommandHandler,
                     handler_func=self.help,
-                    command=command,
+                    command=command_name,
+                    group=0,
+                )
+
+                # Adding handler on callback query request
+                self.handle.add_first(
+                    handler_class=CallbackQueryHandler,
+                    handler_func=self.help,
+                    pattern=command_name,
                     group=0,
                 )
 
