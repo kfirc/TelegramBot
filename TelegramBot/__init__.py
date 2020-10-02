@@ -57,7 +57,11 @@ class TelegramBot:
 
     @property
     def help_string(self):
-        string = f'{self.help_description}\n\n'
+        string = ''
+
+        if isinstance(self.help_description, str):
+            string += f'{self.help_description}\n\n'
+
         command_handlers = [
             handler for handler in self.all_handlers
             if isinstance(handler, CommandHandler)
